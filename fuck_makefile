@@ -1,0 +1,7 @@
+#!/bin/sh
+
+#copy the entire library into /urs/local/include
+#so you the user can just #include <generator_utils>
+
+find *.hpp -exec cp {} /usr/local/include \;
+cp generator_utils.hpp /usr/local/include/generator_utils
