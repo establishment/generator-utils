@@ -4,4 +4,5 @@
 #so you the user can just #include <generator_utils>
 
 find *.hpp -exec cp {} /usr/local/include \;
-cp generator_utils.hpp /usr/local/include/generator_utils
+cp generator_utils /usr/local/include/generator_utils
+cp graph_utils /usr/local/include/graph_utils

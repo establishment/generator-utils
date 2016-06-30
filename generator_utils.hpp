@@ -3,6 +3,11 @@
 #include <functional>
 #include <vector>
 
+template<typename T>
+T Rand();
+
+std::vector<int> RandomPermutation(int num_elements, int start_element=0);
+
 // good deterministic random shuffle
 template <typename LinearIterator>
 void RandomShuffle(LinearIterator begin,LinearIterator end);

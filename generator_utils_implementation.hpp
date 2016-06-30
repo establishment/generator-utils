@@ -7,6 +7,17 @@
 #include <unordered_map>
 #include <vector>
 
+template<>
+long long Rand<long long>() {
+    return 1LL * rand() * RAND_MAX + rand();
+}
+
+std::vector<int> RandomPermutation(int num_elements, int start_element) {
+    auto permutation = Range(start_element, num_elements + start_element);
+    RandomShuffle(permutation);
+    return permutation;
+}
+
 template <typename LinearIterator>
 void RandomShuffle(LinearIterator begin,LinearIterator end) {
     int num_elements = std::distance(begin, end);
@@ -46,12 +57,12 @@ std::vector<int> UniqueNumbers(int right, int num_elements, const std::function<
 };
 
 std::vector<int> UniqueNumbers(int left, int right, int num_elements) {
-    assert(right - left <= num_elements);
+    assert(right - left >= num_elements);
     return UniqueNumbers(left, right, num_elements, [](int) -> bool { return true; });
 };
 
 std::vector<int> UniqueNumbers(int right, int num_elements) {
-    assert(right <= num_elements);
+    assert(right >= num_elements);
     return UniqueNumbers(0, right, num_elements, [](int) -> bool { return true; });
 };
 
