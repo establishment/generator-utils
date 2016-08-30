@@ -3,13 +3,152 @@
 #include <cassert>
 #include <cstdlib>
 
+#include <algorithm>
 #include <functional>
 #include <unordered_map>
 #include <vector>
 
+template<typename Type>
+std::vector<Type> UniqueNumbers(Type left, Type right, Type num_elements, const std::function<bool(Type)>& valid_number) {
+    assert(left <= right);
+
+    std::unordered_map<Type, bool> selected_numbers;
+
+    std::vector<Type> result;
+    result.reserve(num_elements);
+
+    while (num_elements > 0) {
+        int element = std::rand() % (right - left) + left;
+        if (not selected_numbers[element] and valid_number(element)) {
+            selected_numbers[element] = true;
+            result.push_back(element);
+            num_elements -= 1;
+        }
+    }
+
+    return result;
+};
+
+template<typename Type>
+std::vector<Type> UniqueNumbers(Type right, Type num_elements, const std::function<bool(int)>& valid_number) {
+    return UniqueNumbers<Type>(0, right, num_elements, valid_number);
+};
+
+template<typename Type>
+std::vector<Type> UniqueNumbers(Type left, Type right, Type num_elements) {
+    assert(right - left >= num_elements);
+    return UniqueNumbers<Type>(left, right, num_elements, [](Type) -> bool { return true; });
+};
+
+template<typename Type>
+std::vector<Type> UniqueNumbers(Type right, Type num_elements) {
+    assert(right >= num_elements);
+    return UniqueNumbers<Type>(0, right, num_elements, [](Type) -> bool { return true; });
+};
+
+template <typename Type>
+std::vector<Type> Range(Type left, Type right, Type step) {
+    assert(step != 0);
+
+    if (left == right) {
+        return {};
+    }
+
+    std::vector<Type> result;
+
+    if (step > 0) {
+        assert(left <= right);
+        result.reserve((right - left - 1) / step);
+        for (Type itr = left; itr < right; itr += step) {
+            result.push_back(itr);
+        }
+    } else {
+        assert(left >= right);
+        for (Type itr = left; itr > right; itr += step) {
+            result.push_back(itr);
+        }
+    }
+
+    return result;
+};
+
+template <typename Type>
+std::vector<Type> Range(Type right) {
+    return Range(0, right, 1);
+}
+
+std::vector<int> Partition::Uniform(int num_elements, int num_buckets, int min_val) {
+    num_elements -= num_buckets * min_val;
+
+    std::vector<int> delimiters = UniqueNumbers(0, num_elements + num_buckets - 1, num_buckets - 1);
+
+    std::sort(delimiters.begin(), delimiters.end());
+
+    delimiters.insert(delimiters.begin(), -1);
+    delimiters.insert(delimiters.end(), num_elements + num_buckets - 1);
+
+    std::vector<int> sizes;
+
+    for (int i = 1; i <= num_buckets; i += 1) {
+        sizes.push_back(delimiters[i] - delimiters[i - 1] - 1 + min_val);
+    }
+
+    return sizes;
+};
+
+// Random utils
+
+template<>
+int Rand<int>() {
+    return rand();
+}
+
 template<>
 long long Rand<long long>() {
     return 1LL * rand() * RAND_MAX + rand();
+}
+
+template<>
+int Rand<int>(int left, int right) {
+    if (left == right) { return 0; }
+    long long x = 1LL * rand() * RAND_MAX + rand();
+    x %= (long long)(right - left);
+    x += left;
+    return x;
+}
+
+template<>
+long long Rand<long long>(long long left, long long right) {
+    if (left == right) { return 0; }
+    long long x = 1LL * rand() * RAND_MAX + rand();
+    x %= (right - left);
+    x += left;
+    return x;
+}
+
+template<>
+double Rand<double>(double left, double right) {
+    long double x = (1.0 * rand() * RAND_MAX + rand()) / RAND_MAX / RAND_MAX;
+    x *= (right - left);
+    x += left;
+    return (double)x;
+}
+
+template<>
+long double Rand<long double>(long double left, long double right) {
+    long double x = (1.0 * rand() * RAND_MAX + rand()) / RAND_MAX / RAND_MAX;
+    x *= (right - left);
+    x += left;
+    return x;
+}
+
+template<typename Type>
+Type RandLog(Type left, Type right) {
+    double x = Rand<double>(std::log2(left), std::log2(right));
+    Type r = std::pow(2, x);
+    assert(left <= r);
+    assert(r < right);
+    return r;
 }
 
 std::vector<int> RandomPermutation(int num_elements, int start_element) {
@@ -32,148 +171,20 @@ void RandomShuffle(Container& container) {
     RandomShuffle(container.begin(), container.end());
 };
 
-std::vector<int> UniqueNumbers(int left, int right, int num_elements, const std::function<bool(int)>& valid_number) {
-    assert(left <= right);
+UniqueWordGenerator::UniqueWordGenerator(std::function<int()> word_len_generator, const std::vector<char>& sigma)
+        : word_len_generator(word_len_generator), sigma(sigma) { }
 
-    std::unordered_map<int, bool> selected_numbers;
+std::string UniqueWordGenerator::RandomString() {
+    while (1) {
+        int len = word_len_generator();
+        std::string x(len, ' ');
+        for (int i = 0; i < len; i += 1) {
+            x[i] = sigma[rand() % sigma.size()];
+        }
 
-    std::vector<int> result;
-    result.reserve(num_elements);
-
-    while (num_elements > 0) {
-        int element = std::rand() % (right - left) + left;
-        if (not selected_numbers[element] and valid_number(element)) {
-            selected_numbers[element] = true;
-            result.push_back(element);
-            num_elements -= 1;
+        if (selected[x] == false) {
+            selected[x] = true;
+            return x;
         }
     }
-
-    return result;
-};
-
-std::vector<int> UniqueNumbers(int right, int num_elements, const std::function<bool(int)>& valid_number) {
-    return UniqueNumbers(0, right, num_elements, valid_number);
-};
-
-std::vector<int> UniqueNumbers(int left, int right, int num_elements) {
-    assert(right - left >= num_elements);
-    return UniqueNumbers(left, right, num_elements, [](int) -> bool { return true; });
-};
-
-std::vector<int> UniqueNumbers(int right, int num_elements) {
-    assert(right >= num_elements);
-    return UniqueNumbers(0, right, num_elements, [](int) -> bool { return true; });
-};
-
-std::vector<int> Range(int left, int right, int step) {
-    assert(step != 0);
-
-    if (left == right) {
-        return {};
-    }
-
-    std::vector<int> result;
-
-    if (step > 0) {
-        assert(left <= right);
-        result.reserve((right - left - 1) / step);
-        for (int itr = left; itr < right; itr += step) {
-            result.push_back(itr);
-        }
-    } else {
-        assert(left >= right);
-        for (int itr = left; itr > right; itr += step) {
-            result.push_back(itr);
-        }
-    }
-
-    return result;
-};
-
-std::vector<int> Range(int right) {
-    return Range(0, right, 1);
 }
-
-
-std::vector<int> TreeFromDegree(std::vector<int> degrees) {
-    RandomShuffle(degrees);
-
-    std::vector<int> in_degree({degrees.back()});
-    std::vector<int> fathers;
-    degrees.pop_back();
-
-    std::vector<int> available_nodes({0});
-
-    auto add_node = [&](int father, int degree) -> int {
-        in_degree.push_back(degree);
-        if (degree != 0) {
-            available_nodes.push_back((int)in_degree.size() - 1);
-        }
-        fathers.push_back(father);
-        return (int)in_degree.size() - 1;
-    };
-
-    auto get_random_node = [&]() -> int {
-        int index = rand() % available_nodes.size();
-        int node = available_nodes[index];
-        in_degree[node] -= 1;
-        if (in_degree[node] == 0) {
-            std::swap(available_nodes[index], available_nodes.back());
-            available_nodes.pop_back();
-        }
-        return node;
-    };
-
-    auto random_path_num = [&]() -> int {
-        if (degrees.size() < 3) {
-            return degrees.size();
-        } else {
-            int mx = degrees.size() / log2(degrees.size() + 1);
-            mx = std::max(mx, 1);
-            return rand() % mx + 1;
-        }
-    };
-
-    while (degrees.size()) {
-        int new_num = random_path_num();
-        int start = get_random_node();
-        int last_node = start;
-        for (int i = 0; i < new_num; i += 1) {
-            if (i + 1 != new_num) {
-                degrees.back() -= 1;
-            }
-
-            int node = add_node(last_node, degrees.back());
-            degrees.pop_back();
-            last_node = node;
-        }
-    }
-
-    while (not available_nodes.empty()) {
-
-        int father = get_random_node();
-        add_node(father, 0);
-    }
-
-    return fathers;
-};
-
-std::vector<int> Partition::Uniform(int num_elements, int num_buckets, int min_val) {
-    num_elements -= num_buckets * min_val;
-
-    std::vector<int> delimiters = UniqueNumbers(0, num_elements + num_buckets - 1, num_buckets - 1);
-
-    sort(delimiters.begin(), delimiters.end());
-
-    delimiters.insert(delimiters.begin(), -1);
-    delimiters.insert(delimiters.end(), num_elements + num_buckets - 1);
-
-    std::vector<int> sizes;
-
-    for (int i = 1; i <= num_buckets; i += 1) {
-        sizes.push_back(delimiters[i] - delimiters[i - 1] - 1 + min_val);
-    }
-
-    return sizes;
-};

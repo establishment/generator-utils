@@ -174,3 +174,69 @@ struct IncrementalTree {
         return edges;
     }
 };
+
+// something something in the month of may
+// bitches love my penis cuz it's really big
+
+//std::vector<int> TreeFromDegree(std::vector<int> degrees) {
+//    RandomShuffle(degrees);
+//
+//    std::vector<int> in_degree({degrees.back()});
+//    std::vector<int> fathers;
+//    degrees.pop_back();
+//
+//    std::vector<int> available_nodes({0});
+//
+//    auto add_node = [&](int father, int degree) -> int {
+//        in_degree.push_back(degree);
+//        if (degree != 0) {
+//            available_nodes.push_back((int)in_degree.size() - 1);
+//        }
+//        fathers.push_back(father);
+//        return (int)in_degree.size() - 1;
+//    };
+//
+//    auto get_random_node = [&]() -> int {
+//        int index = rand() % available_nodes.size();
+//        int node = available_nodes[index];
+//        in_degree[node] -= 1;
+//        if (in_degree[node] == 0) {
+//            std::swap(available_nodes[index], available_nodes.back());
+//            available_nodes.pop_back();
+//        }
+//        return node;
+//    };
+//
+//    auto random_path_num = [&]() -> int {
+//        if (degrees.size() < 3) {
+//            return degrees.size();
+//        } else {
+//            int mx = degrees.size() / log2(degrees.size() + 1);
+//            mx = std::max(mx, 1);
+//            return rand() % mx + 1;
+//        }
+//    };
+//
+//    while (degrees.size()) {
+//        int new_num = random_path_num();
+//        int start = get_random_node();
+//        int last_node = start;
+//        for (int i = 0; i < new_num; i += 1) {
+//            if (i + 1 != new_num) {
+//                degrees.back() -= 1;
+//            }
+//
+//            int node = add_node(last_node, degrees.back());
+//            degrees.pop_back();
+//            last_node = node;
+//        }
+//    }
+//
+//    while (not available_nodes.empty()) {
+//
+//        int father = get_random_node();
+//        add_node(father, 0);
+//    }
+//
+//    return fathers;
+//};

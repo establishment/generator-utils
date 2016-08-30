@@ -2,16 +2,19 @@
 #include "graph_utils"
 
 #include <iostream>
+#include <iomanip>
 using namespace std;
 
-int main() {
-    vector<int> x({1, 2, 3, 4, 5});
-//    cerr << rand() << '\n';
-    RandomShuffle(x.begin(), x.end());
+typedef long long int64;
+typedef __int128_t int128;
+typedef double float64;
+typedef long double float128;
 
-    for (auto itr : x) {
-        cerr << itr << '\n';
-    }
-    cerr << rand() << '\n';
+int main() {
+    srand(time(NULL));
+    rand();
+    rand();
+    auto x = RandLog<int64>(1e1, 1e18);
+    cout << fixed << setprecision(5) << x << '\n';
     return 0;
 }
