@@ -1,8 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 
 #copy the entire library into /urs/local/include
 #so you the user can just #include <generator_utils>
 
-find *.hpp -exec cp {} /usr/local/include \;
-cp generator_utils /usr/local/include/generator_utils
-cp graph_utils /usr/local/include/graph_utils
+path1="/usr/local/include"
+path2="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"
+
+find src/*.hpp -exec cp {} $path1 \;
+cp src/generator_utils $path1/generator_utils
+cp src/graph_utils $path1/graph_utils
+
+find src/*.hpp -exec cp {} $path2 \;
+cp src/generator_utils $path2/generator_utils
+cp src/graph_utils $path2/graph_utils

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "generator_utils.hpp"
+#include <cassert>
 
-#include <vector>
 #include <queue>
+#include <vector>
 
 struct IncrementalTree {
     int root, num_elements, remaining_children_degree;
