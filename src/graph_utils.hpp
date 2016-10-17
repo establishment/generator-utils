@@ -2,176 +2,221 @@
 
 #include <cassert>
 
-#include <queue>
+#include <algorithm>
+#include <iostream>
+#include <memory>
 #include <vector>
 
+using std::cerr;
+
+struct UnsaturatedTreeNode {
+    int node_index;
+    int remaining_degree;
+
+    ~UnsaturatedTreeNode() {
+        delete next_node;
+    }
+
+    UnsaturatedTreeNode* next_node;
+    UnsaturatedTreeNode(int node_index, int remaining_degree) 
+        : node_index(node_index), remaining_degree(remaining_degree), next_node(nullptr) { }
+};
+
 struct IncrementalTree {
-    int root, num_elements, remaining_children_degree;
-    std::vector<int>* _free_children_degree;
-    std::vector<std::vector<int>>* _children;
-    std::queue<int>* _waiting_list;
+    int root;
+    int num_nodes;
+    int num_unsaturated_edges;
+    std::vector<std::pair<int, int>> edges;
+    UnsaturatedTreeNode* first_waiting_list_node;
+    UnsaturatedTreeNode* last_waiting_list_node;
 
-    IncrementalTree(int degree) : root(0), num_elements(1), remaining_children_degree(degree),
-                                  _free_children_degree(new std::vector<int>(1, degree)),
-                                  _children(new std::vector<std::vector<int>>(1)),
-                                  _waiting_list(new std::queue<int>) {
-        if (degree) {
-            _waiting_list->push(0);
-        }
-    }
-
-    ~IncrementalTree() {
-        delete _free_children_degree;
-        delete _children;
-        delete _waiting_list;
-    }
+    IncrementalTree(int unsaturated_edges=0) 
+        : root(0),
+        num_nodes(1),
+        num_unsaturated_edges(unsaturated_edges),
+        first_waiting_list_node(new UnsaturatedTreeNode(root, num_unsaturated_edges)),
+        last_waiting_list_node(first_waiting_list_node) { }
 
     IncrementalTree(const IncrementalTree& rhs) {
         *this = rhs;
     }
 
-    IncrementalTree& operator=(const IncrementalTree& rhs) {
-        delete _free_children_degree;
-        delete _children;
-        delete _waiting_list;
+    IncrementalTree(IncrementalTree&& rhs) noexcept
+        : root(rhs.root),
+        num_nodes(rhs.num_nodes),
+        num_unsaturated_edges(rhs.num_unsaturated_edges),
+        edges(std::move(rhs.edges)),
+        first_waiting_list_node(rhs.first_waiting_list_node),
+        last_waiting_list_node(rhs.last_waiting_list_node) {
+            rhs.first_waiting_list_node = nullptr;
+            rhs.last_waiting_list_node = nullptr;
+        }
 
+    ~IncrementalTree() noexcept {
+        delete first_waiting_list_node;
+    }
+
+    IncrementalTree& operator=(IncrementalTree&& rhs) noexcept {
         root = rhs.root;
-        num_elements = rhs.num_elements;
-        remaining_children_degree = rhs.remaining_children_degree;
+        num_nodes = rhs.num_nodes;
+        num_unsaturated_edges = rhs.num_unsaturated_edges;
 
-        _free_children_degree = new std::vector<int>(*(rhs._free_children_degree));
-        _children = new std::vector<std::vector<int>>(*(rhs._children));
-        _waiting_list = new std::queue<int>(*(rhs._waiting_list));
+        std::swap(edges, rhs.edges);
+        std::swap(first_waiting_list_node, rhs.first_waiting_list_node);
+        std::swap(last_waiting_list_node, rhs.last_waiting_list_node);
 
         return *this;
     }
 
-    // need to refactor this
+    IncrementalTree& operator=(const IncrementalTree& rhs) {
+        root = rhs.root;
+        num_nodes = rhs.num_nodes;
+        num_unsaturated_edges = rhs.num_unsaturated_edges;
+        edges = rhs.edges;
+        
+        UnsaturatedTreeNode* first_node = rhs.first_waiting_list_node;
+
+        first_waiting_list_node = new UnsaturatedTreeNode(first_node->node_index, first_node->remaining_degree);
+        last_waiting_list_node = first_waiting_list_node;
+        first_node = first_node->next_node;
+
+        while (first_node != nullptr) {
+            last_waiting_list_node->next_node = new UnsaturatedTreeNode(first_node->node_index, first_node->remaining_degree);
+            last_waiting_list_node = last_waiting_list_node->next_node;
+            first_node = first_node->next_node;
+        }
+
+        return *this;
+   }
+
+    IncrementalTree& Merge(const IncrementalTree& rhs) {
+        return Merge(IncrementalTree(rhs));
+    }
+
     IncrementalTree& Merge(IncrementalTree&& rhs) {
-        Merge(rhs);
-        return *this;
-    }
-    IncrementalTree& Merge(IncrementalTree& rhs) {
-        if (num_elements >= rhs.num_elements) {
-            int nod = this->GetNextFather();
-            rhs.PrepareForMove(num_elements);
-            (*_children)[nod].push_back(rhs.root);
+        if (rhs.num_nodes <= num_nodes) {
+            int father = GetFreeNode();
+            int oth = rhs.root + (num_nodes + root - rhs.root);
+            edges.push_back({father, oth});
 
-            for (auto& itr : *(rhs._children)) {
-                _children->emplace_back(std::move(itr));
-            }
-            for (auto& itr : *(rhs._free_children_degree)) {
-                _free_children_degree->emplace_back(std::move(itr));
+            for (int i = 0, limit = rhs.edges.size(); i < limit; i += 1) {
+                auto edge = rhs.edges[i];
+                edge.first += num_nodes + root - rhs.root;
+                edge.second += num_nodes + root - rhs.root;
+                edges.push_back(edge);
             }
 
-
-            num_elements += rhs.num_elements;
-            remaining_children_degree += rhs.remaining_children_degree;
+            auto now = rhs.first_waiting_list_node;
+            while (now != nullptr) {
+                now->node_index += num_nodes + root - rhs.root;
+                now = now->next_node;
+            }
+    
+            /// root is the same
+            num_nodes += rhs.num_nodes;
+            num_unsaturated_edges += rhs.num_unsaturated_edges;
         } else {
-            int nod = this->GetNextFather();
-            PrepareForMove(rhs.num_elements);
-            (*_children)[nod].push_back(rhs.root);
+            int new_root = rhs.root - num_nodes;
 
-//            cerr << "COPY THIS INTO RHS\n";
-
-            for (auto& itr : *_children) {
-                rhs._children->emplace_back(std::move(itr));
+            /// copy edges
+            for (auto edge : edges) {
+                edge.first += new_root - root;
+                edge.second += new_root - root;
+                rhs.edges.push_back(edge);
             }
-            for (auto& itr : *_free_children_degree) {
-                rhs._free_children_degree->emplace_back(std::move(itr));
+            std::swap(edges, rhs.edges);
+
+            /// copy waiting list
+            UnsaturatedTreeNode* first_node = first_waiting_list_node;
+            while (first_node != nullptr) {
+                first_node->node_index += new_root - root;
+                first_node = first_node->next_node;
             }
 
-            num_elements += rhs.num_elements;
-            remaining_children_degree += rhs.remaining_children_degree;
+            /// copy other values
+            int father = GetFreeNode();
+            int oth = rhs.root;
+            edges.push_back({father, oth});
 
-            swap(_children, rhs._children);
-            swap(_free_children_degree, rhs._free_children_degree);
+            root = new_root;
+            num_nodes += rhs.num_nodes;
+            num_unsaturated_edges += rhs.num_unsaturated_edges;
         }
 
-        PopFather();
+        last_waiting_list_node->next_node = rhs.first_waiting_list_node;
+        last_waiting_list_node = rhs.last_waiting_list_node;
+
+        /// do not let destroctor to take away our precious list
+        rhs.first_waiting_list_node = nullptr;
+        rhs.last_waiting_list_node = nullptr;
+
         return *this;
     }
 
-    IncrementalTree& PrepareForMove(int offset) {
-        root += offset;
-        for (auto& list : *_children) {
-            for (auto& node : list) {
-                node += offset;
-            }
-        }
-        std::queue<int>* new_waiting_list(new std::queue<int>);
-        while (not _waiting_list->empty()) {
-            new_waiting_list->push(offset + _waiting_list->front());
-            _waiting_list->pop();
-        }
+    IncrementalTree& InsertNode(int unsaturated_degree) {
+        int father = GetFreeNode();
+        int node = root + num_nodes;
 
-        delete _waiting_list;
-        _waiting_list = new_waiting_list;
-        return *this;
-    }
-
-    int GetNextFather() {
-        return _waiting_list->front();
-    }
-
-    void NextValidFather() {
-//        cerr << "NextValidFather\n";
-        if (_waiting_list->empty()) {
-            return;
-        }
-
-        int nod = _waiting_list->front();
-        if ((*_free_children_degree)[nod] == 0) {
-            _waiting_list->pop();
-            for (auto itr : Children(nod)) {
-                _waiting_list->push(itr);
-            }
-            NextValidFather();
-        }
-    }
-
-    void PopFather() {
-        NextValidFather();
-        int nod = _waiting_list->front();
-        assert((*_free_children_degree)[nod] > 0);
-
-        (*_free_children_degree)[nod] -= 1;
-        remaining_children_degree -= 1;
-    }
-
-    std::vector<int>& Children(int nod) {
-        return (*_children)[nod];
-    }
-
-    IncrementalTree& InsertNode(int degree) {
-        int father = GetNextFather();
-        _free_children_degree->push_back(degree);
-        _children->push_back({});
-        (*_children)[father].push_back(num_elements);
-
-        remaining_children_degree += degree;
-        num_elements += 1;
-
-        PopFather();
+        num_nodes += 1;
+        num_unsaturated_edges += unsaturated_degree;
+        
+        edges.push_back({father, node});
+        cerr << "Add Edge\t" << father << '\t' << node << '\n';
+        last_waiting_list_node->next_node = new UnsaturatedTreeNode(node, unsaturated_degree);
+        last_waiting_list_node = last_waiting_list_node->next_node;
+        
         return *this;
     }
 
     IncrementalTree& FillWithLeaves() {
-        while (remaining_children_degree) {
+        while (num_unsaturated_edges) {
             InsertNode(0);
         }
         return *this;
     }
 
-    std::vector<std::pair<int, int>> ToEdgeList(int start_node=1) {
-        std::vector<std::pair<int, int>> edges;
-        for (int a = 0; a < num_elements; a += 1) {
-            for (auto itr : (*_children)[a]) {
-                edges.push_back({a + start_node, itr + start_node});
-            }
+    std::vector<std::pair<int, int>> ToEdgeList(int start_node=1) const {
+        int new_root = start_node;
+        std::vector<std::pair<int, int>> final_edges;
+
+        for (auto edge : edges) {
+            edge.first += new_root - root;
+            edge.second += new_root - root;
+            final_edges.push_back(edge);
         }
 
-        return edges;
+        return final_edges;
+    }
+
+    void Debug() {
+        auto now = first_waiting_list_node;
+        while (now != nullptr) {
+            cerr << now->node_index << '\t' << now->remaining_degree << '\n';
+            now = now->next_node;
+        }
+        return;
+    }
+
+  private:
+    int GetFreeNode() {
+        assert(num_unsaturated_edges);
+        num_unsaturated_edges -= 1;
+
+        while (first_waiting_list_node != nullptr and first_waiting_list_node->remaining_degree == 0) {
+            auto last_node = first_waiting_list_node;
+            first_waiting_list_node = first_waiting_list_node->next_node;
+
+            // delete only this
+            last_node->next_node = nullptr;
+            delete last_node;
+        }
+
+        if (first_waiting_list_node == nullptr) {
+            assert(0);
+        }
+
+        first_waiting_list_node->remaining_degree -= 1;
+        return first_waiting_list_node->node_index;
     }
 };
 
