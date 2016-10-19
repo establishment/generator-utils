@@ -41,31 +41,31 @@ Type xRandLogScaled(Type left, Type right);
 //  Time O(unordered_map_lookup * (good + bad) * (HarmonicNumber(good) - HarmonicNumber(good - num_elements))
 //  eg: for bad=0, num_elements=good / 2 it's ~ O(unordered_map_lookup * num_elements * ln(2))
 template<typename Type>
-std::vector<Type> UniqueNumbers(Type left, Type right, Type num_elements, const std::function<bool(Type)>& valid_number);
+std::vector<Type> UniqueNumbers(Type left, Type right, int num_elements, const std::function<bool(Type)>& valid_number);
 
 template<typename Type>
-std::vector<Type> xUniqueNumbers(Type left, Type right, Type num_elements, const std::function<bool(Type)>& valid_number);
+std::vector<Type> xUniqueNumbers(Type left, Type right, int num_elements, const std::function<bool(Type)>& valid_number);
 
 // returns a std::vector containing (num_elements) unique numbers from [0, right) which return true for valid_number()
 template<typename Type>
-std::vector<Type> UniqueNumbers(Type right, Type num_elements, const std::function<bool(Type)>& valid_number);
+std::vector<Type> UniqueNumbers(Type right, int num_elements, const std::function<bool(Type)>& valid_number);
 
 template<typename Type>
-std::vector<Type> xUniqueNumbers(Type right, Type num_elements, const std::function<bool(Type)>& valid_number);
+std::vector<Type> xUniqueNumbers(Type right, int num_elements, const std::function<bool(Type)>& valid_number);
 
 // returns a std::vector containing (num_elements) unique numbers from [left, right)
 template<typename Type>
-std::vector<Type> UniqueNumbers(Type left, Type right, Type num_elements);
+std::vector<Type> UniqueNumbers(Type left, Type right, int num_elements);
 
 template<typename Type>
-std::vector<Type> xUniqueNumbers(Type left, Type right, Type num_elements);
+std::vector<Type> xUniqueNumbers(Type left, Type right, int num_elements);
 
 // returns a std::vector containing (num_elements) unique numbers from [0, right)
 template<typename Type>
-std::vector<Type> UniqueNumbers(Type right, Type num_elements);
+std::vector<Type> UniqueNumbers(Type right, int num_elements);
 
 template<typename Type>
-std::vector<Type> xUniqueNumbers(Type right, Type num_elements);
+std::vector<Type> xUniqueNumbers(Type right, int num_elements);
 
 // equivalent to UniqueNumbers(start_element, num_elements + start_element);
 std::vector<int> RandomPermutation(int num_elements, int start_element=0);
@@ -80,7 +80,7 @@ struct Partition {
 /**** Strings ****/
 class UniqueWordGenerator {
   public:
-    UniqueWordGenerator(std::function<int(void)> word_len_generator, const std::vector<char>& sigma=
+    UniqueWordGenerator(std::function<int(void)>& word_len_generator, const std::vector<char>& sigma=
             {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'});
 
     std::string RandomString();

@@ -67,7 +67,7 @@ long double Rand<long double>(long double left, long double right) {
 template<typename Type>
 Type RandLog(Type left, Type right) {
     long double x = Rand<long double>(std::log2(left), std::log2(right));
-    Type r = std::pow(2, x);
+    Type r = std::pow(2.0, x);
     assert(left <= r);
     assert(r < right);
     return r;
@@ -75,21 +75,21 @@ Type RandLog(Type left, Type right) {
 
 template<typename Type>
 Type xRandLog(Type left, Type right) {
-    return RandLog(left, right + 1);
+    return RandLog(left, right + (Type)1);
 }
 
 template<typename Type>
 Type RandLogScaled(Type left, Type right) {
-    return RandLog(1, right - left + 1);
+    return RandLog<Type>((Type)1, right - left + (Type)1) + (left - 1);
 }
 
 template<typename Type>
 Type xRandLogScaled(Type left, Type right) {
-    return RandLog(1, right - left + 2);
+    return RandLog<Type>((Type)1, right - left + (Type)2) + (left - 1);
 }
 
 template<typename Type>
-std::vector<Type> UniqueNumbers(Type left, Type right, Type num_elements, const std::function<bool(Type)>& valid_number) {
+std::vector<Type> UniqueNumbers(Type left, Type right, int num_elements, const std::function<bool(Type)>& valid_number) {
     assert(right - left >= num_elements);
     assert(left <= right);
 
@@ -111,44 +111,44 @@ std::vector<Type> UniqueNumbers(Type left, Type right, Type num_elements, const 
 };
 
 template<typename Type>
-std::vector<Type> xUniqueNumbers(Type left, Type right, Type num_elements, const std::function<bool(Type)>& valid_number) {
+std::vector<Type> xUniqueNumbers(Type left, Type right, int num_elements, const std::function<bool(Type)>& valid_number) {
     return UniqueNumbers(left, right + 1, num_elements, valid_number);
 };
 
 
 
 template<typename Type>
-std::vector<Type> UniqueNumbers(Type right, Type num_elements, const std::function<bool(Type)>& valid_number) {
-    return UniqueNumbers<Type>(0, right, num_elements, valid_number);
+std::vector<Type> UniqueNumbers(Type right, int num_elements, const std::function<bool(Type)>& valid_number) {
+    return UniqueNumbers<Type>((Type)0, right, num_elements, valid_number);
 };
 
 template<typename Type>
-std::vector<Type> xUniqueNumbers(Type right, Type num_elements, const std::function<bool(Type)>& valid_number) {
-    return UniqueNumbers<Type>(0, right + 1, num_elements, valid_number);
+std::vector<Type> xUniqueNumbers(Type right, int num_elements, const std::function<bool(Type)>& valid_number) {
+    return UniqueNumbers<Type>((Type)0, right + (Type)1, num_elements, valid_number);
 };
 
 
 
 template<typename Type>
-std::vector<Type> UniqueNumbers(Type left, Type right, Type num_elements) {
+std::vector<Type> UniqueNumbers(Type left, Type right, int num_elements) {
     return UniqueNumbers<Type>(left, right, num_elements, [](Type) -> bool { return true; });
 };
 
 template<typename Type>
-std::vector<Type> xUniqueNumbers(Type left, Type right, Type num_elements) {
-    return UniqueNumbers<Type>(left, right + 1, num_elements, [](Type) -> bool { return true; });
+std::vector<Type> xUniqueNumbers(Type left, Type right, int num_elements) {
+    return UniqueNumbers<Type>(left, right + (Type)1, num_elements, [](Type) -> bool { return true; });
 };
 
 
 
 template<typename Type>
-std::vector<Type> UniqueNumbers(Type right, Type num_elements) {
-    return UniqueNumbers<Type>(0, right, num_elements, [](Type) -> bool { return true; });
+std::vector<Type> UniqueNumbers(Type right, int num_elements) {
+    return UniqueNumbers<Type>((Type)0, right, num_elements, [](Type) -> bool { return true; });
 };
 
 template<typename Type>
-std::vector<Type> xUniqueNumbers(Type right, Type num_elements) {
-    return UniqueNumbers<Type>(0, right + 1, num_elements, [](Type) -> bool { return true; });
+std::vector<Type> xUniqueNumbers(Type right, int num_elements) {
+    return UniqueNumbers<Type>((Type)0, right + (Type)1, num_elements, [](Type) -> bool { return true; });
 };
 
 
@@ -156,7 +156,7 @@ std::vector<Type> xUniqueNumbers(Type right, Type num_elements) {
 std::vector<int> Partition::Uniform(int num_elements, int num_buckets, int min_val) {
     num_elements -= num_buckets * min_val;
 
-    std::vector<int> delimiters = UniqueNumbers(0, num_elements + num_buckets - 1, num_buckets - 1);
+    std::vector<int> delimiters = UniqueNumbers((int)0, num_elements + num_buckets - 1, num_buckets - 1);
 
     std::sort(delimiters.begin(), delimiters.end());
 
@@ -185,7 +185,7 @@ std::vector<int> RandomPermutation(int num_elements, int start_element) {
     return permutation;
 }
 
-UniqueWordGenerator::UniqueWordGenerator(std::function<int()> word_len_generator, const std::vector<char>& sigma)
+UniqueWordGenerator::UniqueWordGenerator(std::function<int()>& word_len_generator, const std::vector<char>& sigma)
         : word_len_generator(word_len_generator), sigma(sigma) { }
 
 std::string UniqueWordGenerator::RandomString() {
