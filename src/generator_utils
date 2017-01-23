@@ -1,5 +1,5 @@
 #pragma once
 
-#include "random.hpp"
-#include "utils.hpp"
-#include "graph_utils.hpp"
+#include <generator_utils_src/random.hpp>
+#include <generator_utils_src/utils.hpp>
+#include <generator_utils_src/graph_utils.hpp>

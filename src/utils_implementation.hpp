@@ -7,7 +7,7 @@
 
 template <typename Type>
 std::vector<Type> Range(Type left, Type right, Type step) {
-    assert(step != 0);
+    assert(step != static_cast<Type>(0));
 
     if (left == right) {
         return {};
@@ -15,7 +15,7 @@ std::vector<Type> Range(Type left, Type right, Type step) {
 
     std::vector<Type> result;
 
-    if (step > 0) {
+    if (step > static_cast<Type>(0)) {
         assert(left <= right);
         result.reserve((right - left) / step);
         for (Type itr = left; itr < right; itr += step) {
@@ -34,17 +34,27 @@ std::vector<Type> Range(Type left, Type right, Type step) {
 
 template <typename Type>
 std::vector<Type> xRange(Type left, Type right, Type step) {
-    return Range(left, right + 1, step);
+    return Range(left, static_cast<Type>(static_cast<Type>(1) + right), step);
 }
 
 template <typename Type>
 std::vector<Type> Range(Type right) {
-    return Range((Type)0, right, (Type)1);
+    return Range(static_cast<Type>(0), right, static_cast<Type>(1));
 }
 
 template <typename Type>
 std::vector<Type> xRange(Type right) {
-    return Range((Type)0, right + 1, (Type)1);
+    return Range(static_cast<Type>(0), static_cast<Type>(static_cast<Type>(1) + right), static_cast<Type>(1));
+}
+
+template <typename Type>
+std::vector<Type> Range(Type left, Type right) {
+    return Range(left, right, static_cast<Type>(1));
+}
+
+template <typename Type>
+std::vector<Type> xRange(Type left, Type right) {
+    return Range(left, static_cast<Type>(static_cast<Type>(1) + right), static_cast<Type>(1));
 }
 
 template <typename LinearIterator>

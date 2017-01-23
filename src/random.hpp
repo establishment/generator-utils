@@ -68,7 +68,7 @@ template<typename Type>
 std::vector<Type> xUniqueNumbers(Type right, int num_elements);
 
 // equivalent to UniqueNumbers(start_element, num_elements + start_element);
-std::vector<int> RandomPermutation(int num_elements, int start_element=0);
+std::vector<int> RandomPermutation(int num_elements, int start_element);
 
 /**** Patitioning ****/
 // splits [num_elements] into [num_buckets]
@@ -80,13 +80,12 @@ struct Partition {
 /**** Strings ****/
 class UniqueWordGenerator {
   public:
-    UniqueWordGenerator(std::function<int(void)>& word_len_generator, const std::vector<char>& sigma=
-            {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'});
+    UniqueWordGenerator(std::function<int(void)> word_len_generator, const std::vector<char>& sigma);
 
     std::string RandomString();
 
   private:
-    std::function<int(void)>& word_len_generator;
+    std::function<int(void)> word_len_generator;
     std::vector<char> sigma;
     std::map<std::string, bool> selected;
 };

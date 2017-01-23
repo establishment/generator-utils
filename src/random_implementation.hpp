@@ -2,6 +2,8 @@
 
 #include "random.hpp"
 
+#include <iostream>
+
 #include <cassert>
 
 #include <algorithm>
@@ -154,14 +156,26 @@ std::vector<Type> xUniqueNumbers(Type right, int num_elements) {
 
 
 std::vector<int> Partition::Uniform(int num_elements, int num_buckets, int min_val) {
+//    std::cerr << ">>>>>\t" << num_elements << '\t' << num_buckets << '\t' << min_val << '\t' << num_elements + num_buckets - 1 << '\n';
     num_elements -= num_buckets * min_val;
-
+    
     std::vector<int> delimiters = UniqueNumbers((int)0, num_elements + num_buckets - 1, num_buckets - 1);
 
+//    std::cerr << "1\t" << delimiters.size() << '\n';
+
     std::sort(delimiters.begin(), delimiters.end());
+    
+//    std::cerr << "2\t" << delimiters.size() << '\n';
+    delimiters.push_back(num_elements + num_buckets - 1);
+//    std::cerr << "Size:\t" << delimiters.size() << '\t' << "Capacity:\t" << delimiters.capacity() << '\n';
 
     delimiters.insert(delimiters.begin(), -1);
-    delimiters.insert(delimiters.end(), num_elements + num_buckets - 1);
+    
+//    std::cerr << "2.5\t" << delimiters.size() << '\n';
+
+//    delimiters.insert(delimiters.end(), num_elements + num_buckets - 1);
+    
+//    std::cerr << "3\n";
 
     std::vector<int> sizes;
 
@@ -169,6 +183,7 @@ std::vector<int> Partition::Uniform(int num_elements, int num_buckets, int min_v
         sizes.push_back(delimiters[i] - delimiters[i - 1] - 1 + min_val);
     }
 
+//    std::cerr << "<<<<<\n";
     return sizes;
 };
 
@@ -185,7 +200,8 @@ std::vector<int> RandomPermutation(int num_elements, int start_element) {
     return permutation;
 }
 
-UniqueWordGenerator::UniqueWordGenerator(std::function<int()>& word_len_generator, const std::vector<char>& sigma)
+UniqueWordGenerator::UniqueWordGenerator(std::function<int()> word_len_generator, const std::vector<char>& sigma =
+        {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'})
         : word_len_generator(word_len_generator), sigma(sigma) { }
 
 std::string UniqueWordGenerator::RandomString() {
