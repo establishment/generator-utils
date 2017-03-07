@@ -9,8 +9,11 @@
 template<typename Type=int>
 Type Rand();
 
-template<typename Type=int>
-Type xRand();
+template<typename Type>
+Type Rand(Type right);
+
+template<typename Type>
+Type xRand(Type right);
 
 template<typename Type>
 Type Rand(Type left, Type right);
@@ -68,7 +71,7 @@ template<typename Type>
 std::vector<Type> xUniqueNumbers(Type right, int num_elements);
 
 // equivalent to UniqueNumbers(start_element, num_elements + start_element);
-std::vector<int> RandomPermutation(int num_elements, int start_element);
+std::vector<int> RandomPermutation(int num_elements, int start_element=0);
 
 /**** Patitioning ****/
 // splits [num_elements] into [num_buckets]
