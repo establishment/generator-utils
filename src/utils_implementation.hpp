@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <memory>
 
 template <typename Type>
 std::vector<Type> Range(Type left, Type right, Type step) {
@@ -76,7 +77,7 @@ Container& RandomShuffle(Container& container) {
 template <typename Container>
 Container&& RandomShuffle(Container&& container) {
     RandomShuffle(container.begin(), container.end());
-    return container;
+    return std::move(container);
 }
 
 // Sort
@@ -94,7 +95,7 @@ Container& Sort(Container& container) {
 template <typename Container>
 Container&& Sort(Container&& container) {
     std::sort(container.begin(), container.end());
-    return container;
+    return std::move(container);
 }
 
 template <typename LinearIterator>
@@ -111,7 +112,7 @@ Container& Reverse(Container& container) {
 template <typename Container>
 Container&& Reverse(Container&& container) {
     std::reverse(container.begin(), container.end());
-    return container;
+    return std::move(container);
 }
 
 template <typename Container>
@@ -124,6 +125,6 @@ Container& Unique(Container& container) {
 template <typename Container>
 Container&& Unique(Container&& container) {
     Unique(container);
-    return container;
+    return std::move(container);
 }
 
