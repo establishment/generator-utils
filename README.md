@@ -23,10 +23,14 @@ Short documentation overview
 
 Utils
 -----
-#####`vector<Type>` `Range(left, right, step)` - returns a vector with `[left, left + step, .. right)`
+#####`vector<Type>` `Range(left, right, step)` 
+* Returns a vector with `[left, left + step, .. right)`
 Other versions `Range(left, right)`, `Range(right)` and all of these with `x`
 
 #####`Sort` `RandomShuffle` `Reverse` `Unique`
+* Applies basic stl function directly on containers(`vectors`)
+
+Actual signature `Container<Type>& Sort(Container<Type>&)` `Container<Type>&& Sort(Container<Type>&&)` - for function call return values
 ```
 vector<int> x = {1, 3, 2, 2, 3, 1, 1, 5};
 Reverse(Unique(x)); // Unique sorts as well, because you want that
@@ -46,10 +50,15 @@ Honorable mentions `UniqueNumbers(left, right, num_elements, const std::function
 * Returns a vector of `num_buckets` elements. The sum of the elements is `num_elements` and each of them is `>= min_val`. Assuming that `min_val = 0`, the returned partition is a random, each possible valid partition having the same chance to be chosen.
 
 #####`Rand` `RandLog` `RandLogScaled`
-Other versions `Rand()` `Rand(right)` `Rand(left, right)` `RandLog(left, right)` `RandLogScaled(left, right)`
+* Returns a random number in [left, right). The weight of the number depends on the function
+* All `Rand` functions have a x version, for which the retured value will be in [left, right].
 
-`Rand(left, right)` - basic rand in interval [left, right)
+`Rand(left, right)`
+* Basic rand in interval [left, right)
+Other versions `Rand()` `Rand(right)`
 
-`RandLog(left, right)` - give a random value in [left, right), value x having the weight equal to 1/x
+`RandLog(left, right)`
+* Give a random value in [left, right), value x having the weight equal to 1/x
 
-`RandLogScaled(left, right)` - same as `RandLog` but element `i` has weight equal to `1 / (i - left + 1)`
+`RandLogScaled(left, right)` 
+* same as `RandLog` but element `i` has weight equal to `1 / (i - left + 1)`
