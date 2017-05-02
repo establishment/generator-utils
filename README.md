@@ -23,11 +23,11 @@ Short documentation overview
 
 Utils
 -----
-#####`vector<Type>` `Range(left, right, step)` 
+##### `vector<Type>` `Range(left, right, step)` 
 * Returns a vector with `[left, left + step, .. right)`
 Other versions `Range(left, right)`, `Range(right)` and all of these with `x`
 
-#####`Sort` `RandomShuffle` `Reverse` `Unique`
+##### `Sort` `RandomShuffle` `Reverse` `Unique`
 * Applies basic stl function directly on containers(`vectors`)
 
 Actual signature `Container<Type>& Sort(Container<Type>&)` `Container<Type>&& Sort(Container<Type>&&)` - for function call return values
@@ -40,16 +40,16 @@ auto v = Sort(FunctionThatReturnsAVector());
 
 Random
 ------
-#####`UniqueNumbers(left, right, num_elements)` 
+##### `UniqueNumbers(left, right, num_elements)` 
 * Returns a vector of `num_elements` numbers in range `[left, right)`
 Other versions `UniqueNumbers(right, num_elements)` - all version work with `x` as well
 
 Honorable mentions `UniqueNumbers(left, right, num_elements, const std::function<bool(Type)>& valid_number)` - returns random numbers, but only numbers for which the function returns true
 
-#####`Partition::Uniform(num_elements, num_buckets, min_val)`
+##### `Partition::Uniform(num_elements, num_buckets, min_val)`
 * Returns a vector of `num_buckets` elements. The sum of the elements is `num_elements` and each of them is `>= min_val`. Assuming that `min_val = 0`, the returned partition is a random, each possible valid partition having the same chance to be chosen.
 
-#####`Rand` `RandLog` `RandLogScaled`
+##### `Rand` `RandLog` `RandLogScaled`
 * Returns a random number in [left, right). The weight of the number depends on the function
 * All `Rand` functions have a x version, for which the retured value will be in [left, right].
 
